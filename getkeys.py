@@ -69,35 +69,6 @@ def modInv(a,m):
         linearcombination = extendedEuclid(a, m)
         return linearcombination[1] % m
  
-def crt(L):
-    '''takes in a list of two or more tuples, ie
-              L = [(a0, n0), (a1,n1),(a2,n2)...(ak nk)]
-       if the n-s are not co-prime, this function prints an error message to
-       the screen and returns -1. Otherwise it continues with the Chinese
-       Remainder theorem, finding a value for x to return which satisfies
-                    x = ai(  mod ni)
-       for all tuples in the list L. This value must be between 0 and N-1
-       where N is the product of all the n in the list L'''
-    NList = []
-    for item in L:
-        NList.append(item[1])
-    if coprime(NList) == False:
-        print ("The input is not valid!")
-        return -1
-    else:
-        bigN = 1
-        for numbers in NList:
-            bigN *= numbers
-    CRTresult = 0
-    for item in L:
-        ai = item[0]
-        Ci = bigN//item[1]
-        #print (Ni, ai)
-        Yi = extendedEuclid(Ci, item[1])
-        #print (Ci, item[1])
-        CRTresult += ai * Ci * Yi[1]
-    return CRTresult % bigN
- 
  
 def extractTwos(m):
     '''m is a positive integer. A tuple (s, d) of integers is returned
@@ -141,13 +112,7 @@ def modExp(a,d,n):
     return result % n
  
 def millerRabin(n, k):
-    '''
-    Miller Rabin pseudo-prime test
-    return True means likely a prime, (how sure about that, depending on k)
-    return False means definitely a composite.
-    Raise assertion error when n, k are not positive integers
-    and n is not 1
-    '''
+    '''Test to see if n is a prime number'''
     assert n >= 1
 
     assert k > 0
@@ -167,9 +132,7 @@ def millerRabin(n, k):
     assert 2 ** s * d == n - 1
  
     def tryComposite(a):
-        '''Inner function which will inspect whether a given witness
-        will reveal the true identity of n. Will only be called within
-        millerRabin'''
+
         x = modExp(a, d, n)
         if x == 1 or x == n - 1:
             return None
@@ -189,9 +152,7 @@ def millerRabin(n, k):
     return True
  
 def findAPrime(a,b,k):
-    '''Return a pseudo prime number roughly between a and b,
-    (could be larger than b). Raise ValueError if cannot find a
-    pseudo prime after 10 * ln(x) + 3 tries. '''
+    '''Return a prime number between a and b. '''
     x = random.randint(a, b)
     for i in range(0, int(10 * math.log(x) + 3)):
         if millerRabin(x, k):
@@ -201,9 +162,7 @@ def findAPrime(a,b,k):
     raise ValueError
  
 def newKey(a,b,k):
-    ''' Try to find two large pseudo primes roughly between a and b.
-    Generate public and private keys for RSA encryption.
-    Raises ValueError if it fails to find one'''
+    ''' Try to find two large primes roughly between a and b '''
     try:
         p = findAPrime(a, b, k)
         while True:
